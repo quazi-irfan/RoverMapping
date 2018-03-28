@@ -1,0 +1,26 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+}
+
+if(project.hasProperty('gui'))
+    if(project.findProperty('gui').toString().equals("true"))
+        mainClassName = "MapGUITest"
+    else
+        mainClassName = "MapTest"
+else
+    mainClassName = "MapTest"
+
+jar {
+    manifest {
+        attributes 'Main-Class' : mainClassName
+    }
+}
