@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.Arrays;
 
 public class MapTest
 {
@@ -8,7 +9,7 @@ public class MapTest
         m.populateMapFromFile("map");
         System.out.println(m);
 
-        Rover r = new Rover(m, 0, 0, 4, 4);
+        Rover r = new Rover(m, 4, 0, 0, 4);
         System.out.println(m);
 
         while (!r.atDestination)
@@ -16,6 +17,7 @@ public class MapTest
             r.move();
             System.out.println(m);
         }
+        System.out.println(Arrays.deepToString(r.path.toArray()));
 
     }
 }

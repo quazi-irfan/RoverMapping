@@ -1,104 +1,97 @@
-import java.util.ArrayList;
-
-/**
- *      Map Status
- *
- *      0 freeSpace
- *      1 obstacle
- *      2 rover
- *      3 visted
- *      4 beanbag
- *      5 scanned
- */
+import java.util.*;
 
 public class Rover
 {
     Map map;
-    int currentRow, currentCol, destinationRow, destinationCol;
+    int startRow, startCol, destinationRow, destinationCol;
     boolean atDestination = false;
+    Queue<Integer[]> frontier;
+    ArrayList<Integer[]> path;
 
-    public Rover(Map map, int currentRow, int currentCol, int destinationRow, int destinationCol)
+    public Rover(Map map, int startRow, int startCol, int destinationRow, int destinationCol)
     {
         this.map = map;
-        this.currentRow = currentRow;
-        this.currentCol = currentCol;
-        this.map.mapArray[currentRow][currentCol] = (byte)2;
+
+        this.startRow = startRow;
+        this.startCol = startCol;
         this.destinationRow = destinationRow;
         this.destinationCol = destinationCol;
+        this.atDestination = false;
+
+        // this line can be removed since I never used MapEnum.ROVER_START_LOC; instead I am using local variables to keep track of the rover
+        this.map.mapArray[startRow][startCol] = MapEnum.ROVER_START_LOC.getValue();
+        this.map.mapArray[destinationRow][destinationCol] = MapEnum.ROVER_DESTINATION.getValue();
+
+        this.frontier = new LinkedList<>();
+        this.frontier.add(new Integer[]{startRow, startCol});
     }
 
     void move()
     {
-        int nextRow, nextCol;
-        nextRow = nextCol = 0;
-        double currentLowestDistance = Integer.MAX_VALUE;
-
-        ArrayList<Integer[]> getPeripheralIndices = getAccessiblePeripheralIndices();
-        for(int i =0; i<getPeripheralIndices.size(); i++)
+        Integer[] current = frontier.poll();
+        if(current != null) // if the queue is not empty
         {
-            if(getPeripheralIndices.get(i)[0] == destinationRow & getPeripheralIndices.get(i)[1] == destinationCol )
+            if(!(current[0] == destinationRow & current[1] == destinationCol))
             {
-                nextRow = getPeripheralIndices.get(i)[0];
-                nextCol = getPeripheralIndices.get(i)[1];
-                this.map.mapArray[currentRow][currentCol] = 3;
-                currentRow = nextRow;
-                currentCol = nextCol;
-                this.map.mapArray[currentRow][currentCol] = 2;
+                ArrayList<Integer[]> neighbours = getNeighbours(current);
+                for(Integer[] next : neighbours)
+                {
+                    if(map.isAccessible(next[0], next[1]))
+                    {
+                        frontier.add(next);
+                        map.setCellStatus(next[0], next[1], findIncomingDirection(current, next));
+                    }
+                }
+            }
+            else
+            {
+                path = new ArrayList<>();
+                while (!(current[0] == startRow & current[1] == startCol))
+                {
+                    path.add(current.clone());
+                    if(map.getCellStatus(current[0], current[1]) == MapEnum.NORTH.getValue())
+                        current[0] += 1;
+                    else if(map.getCellStatus(current[0], current[1]) == MapEnum.SOUTH.getValue())
+                        current[0] -= 1;
+                    else if(map.getCellStatus(current[0], current[1]) ==  MapEnum.EAST.getValue())
+                        current[1] -= 1;
+                    else if(map.getCellStatus(current[0], current[1]) == MapEnum.WEST.getValue())
+                        current[1] += 1;
+                }
                 atDestination = true;
-                return;
+                path.add(new Integer[]{startRow, startCol}); // add the start location
+                Collections.reverse(path); // because we get path from last to first
+                map.clearNSEW(); // clear the NSEW numbers from the array
             }
         }
-
-        for (int i = 0; i < getPeripheralIndices.size(); i++) {
-            double newDistance = distance(getPeripheralIndices.get(i)[0], getPeripheralIndices.get(i)[1], destinationRow, destinationCol);
-            if (newDistance <= currentLowestDistance) {
-                nextRow = getPeripheralIndices.get(i)[0];
-                nextCol = getPeripheralIndices.get(i)[1];
-                currentLowestDistance = newDistance;
-            }
-        }
-
-        // free up the old rover location
-        this.map.mapArray[currentRow][currentCol] = 3;
-        // move the rover to new location
-        currentRow = nextRow;
-        currentCol = nextCol;
-        this.map.mapArray[currentRow][currentCol] = 2;
-
     }
 
-    double distance(int x1, int y1, int x2, int y2)
+    private byte findIncomingDirection(Integer[] previous, Integer[] current)
     {
-        return Math.sqrt(Math.pow((y2 - y1), 2) + Math.pow((x2 - x1), 2));
+        if(current[0] +1 == previous[0] && current[1] == previous[1])
+            return MapEnum.NORTH.getValue();
+        else if(current[0] -1 == previous[0]&& current[1]  == previous[1])
+            return MapEnum.SOUTH.getValue();
+        else if(current[0] == previous[0] && current[1] == previous[1] - 1)
+            return MapEnum.WEST.getValue();
+        else if(current[0] == previous[0] && current[1] == previous[1] + 1)
+            return MapEnum.EAST.getValue();
+
+        return Byte.MIN_VALUE;
     }
 
-    ArrayList<Integer[]> getAccessiblePeripheralIndices()
+    ArrayList<Integer[]> getNeighbours(Integer[] current)
     {
-        ArrayList<Integer[]> peripheralIndices = new ArrayList<>();
-        ArrayList<Integer[]> results = new ArrayList<>();
+        ArrayList<Integer[]> allNeighbourList = new ArrayList<>();
 
-        peripheralIndices.add(new Integer[]{currentRow-1, currentCol-1});
-        peripheralIndices.add(new Integer[]{currentRow-1, currentCol});
-        peripheralIndices.add(new Integer[]{currentRow-1, currentCol+1});
+        allNeighbourList.add(new Integer[]{current[0]-1, current[1]});
+
+        allNeighbourList.add(new Integer[]{current[0], current[1]-1});
+        allNeighbourList.add(new Integer[]{current[0], current[1]+1});
         
-        peripheralIndices.add(new Integer[]{currentRow, currentCol-1});
-        peripheralIndices.add(new Integer[]{currentRow, currentCol+1});
-        
-        peripheralIndices.add(new Integer[]{currentRow+1, currentCol-1});
-        peripheralIndices.add(new Integer[]{currentRow+1, currentCol});
-        peripheralIndices.add(new Integer[]{currentRow+1, currentCol+1});
+        allNeighbourList.add(new Integer[]{current[0]+1, current[1]});
 
-        for(int i =0;i<8; i++)
-        {
-            if(this.map.getCellStatus(peripheralIndices.get(i)[0], peripheralIndices.get(i)[1]) == 0 // if the cell is free to move
-                    & this.map.getCellStatus(peripheralIndices.get(i)[0], peripheralIndices.get(i)[1]) != 3) // if the cell hasn't been visited yet
-                results.add(peripheralIndices.get(i));
-        }
-
-        return results;
+        return allNeighbourList;
     }
-
-
-
 }
 

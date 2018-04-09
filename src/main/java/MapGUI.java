@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class MapGUI
 {
@@ -31,7 +32,6 @@ public class MapGUI
                 {
                     String[] input = jTextField.getText().split(" ");
                     r = new Rover(m, Integer.valueOf(input[0]),Integer.valueOf(input[1]),Integer.valueOf(input[2]),Integer.valueOf(input[3]));
-                    m.clearPlayerAndPath();
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -39,8 +39,10 @@ public class MapGUI
                             {
                                 r.move();
                             }
+                            mapJPanel.setpath(new ArrayList<>(r.path));
                         }
                     }).start();
+
                 }
             }
         });
@@ -57,7 +59,6 @@ public class MapGUI
         mapJPanel.setLocation(100, 100);
 
         jFrame.add(mapJPanel);
-
 
         jFrame.setVisible(true);
     }
