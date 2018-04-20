@@ -61,6 +61,7 @@ public class MapGUI
                                 mapJPanel.setpath(new ArrayList<>(r.path));
                                 jLblBFSStatus.setText("Path found");
                             }
+                            mapJPanel.setDrawGrid(false);
                             mapJPanel.repaint();
                         }
                     }).start();

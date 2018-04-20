@@ -35,6 +35,23 @@ public class MapJPanel extends JPanel implements MouseMotionListener, MouseListe
         g2D.setBackground(Color.WHITE);
         g2D.clearRect(0, 0, getWidth(), getHeight());
 
+        // go over the path list and paint red dots
+        if(path != null && path.size() > 0)
+            for(Integer[] i : path)
+            {
+                g2D.setColor(Color.RED);
+                g2D.drawLine(i[0],i[1],i[0],i[1]);
+            }
+
+        // go over the map array and paint grey dots
+        for(int i = 0; i<map.row; i++)
+            for(int j = 0; j<map.col; j++)
+                if(map.mapArray[i][j] == MapEnum.OBSTACLE.getValue())
+                {
+                    g2D.setColor(Color.GRAY);
+                    g2D.drawLine(i, j, i, j);
+                }
+
         // draw the black rectangle
         if(drawingRect)
         {
@@ -54,23 +71,6 @@ public class MapJPanel extends JPanel implements MouseMotionListener, MouseListe
                 g2D.drawLine(i, 0, i, 600);
                 g2D.drawLine(0, i, 600, i);
             }
-
-        // go over the path list and paint red dots
-        if(path != null && path.size() > 0)
-            for(Integer[] i : path)
-            {
-                g2D.setColor(Color.RED);
-                g2D.drawLine(i[0],i[1],i[0],i[1]);
-            }
-
-        // go over the map array and paint grey dots
-        for(int i = 0; i<map.row; i++)
-            for(int j = 0; j<map.col; j++)
-                if(map.mapArray[i][j] == MapEnum.OBSTACLE.getValue())
-                {
-                    g2D.setColor(Color.GRAY);
-                    g2D.drawLine(i, j, i, j);
-                }
 
         g2D.dispose();
 }
