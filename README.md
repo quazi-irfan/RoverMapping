@@ -1,3 +1,6 @@
+![](https://github.com/SDSU-Robotics/RoverMapping/blob/master/screenshot.jpg)
+
+
 # RoverMapping
 
 Run any of the following two commands to compile and run :
