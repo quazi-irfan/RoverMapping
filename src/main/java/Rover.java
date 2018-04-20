@@ -19,14 +19,16 @@ public class Rover
         this.atDestination = false;
 
         // this line can be removed since I never used MapEnum.ROVER_START_LOC; instead I am using local variables to keep track of the rover
-        this.map.mapArray[startRow][startCol] = MapEnum.ROVER_START_LOC.getValue();
-        this.map.mapArray[destinationRow][destinationCol] = MapEnum.ROVER_DESTINATION.getValue();
+//        this.map.mapArray[startRow][startCol] = MapEnum.ROVER_START_LOC.getValue();
+//        this.map.mapArray[destinationRow][destinationCol] = MapEnum.ROVER_DESTINATION.getValue();
+        map.setCellStatus(startRow, startCol, MapEnum.ROVER_START_LOC.getValue());
+        map.setCellStatus(destinationRow, destinationCol, MapEnum.ROVER_DESTINATION.getValue());
 
         this.frontier = new LinkedList<>();
         this.frontier.add(new Integer[]{startRow, startCol});
     }
 
-    void move()
+    boolean move()
     {
         Integer[] current = frontier.poll();
         if(current != null) // if the queue is not empty
@@ -63,6 +65,13 @@ public class Rover
                 Collections.reverse(path); // because we get path from last to first
                 map.clearNSEW(); // clear the NSEW numbers from the array
             }
+            return true;
+        }
+        else
+        {
+            path = null;
+            map.clearNSEW();
+            return false;
         }
     }
 

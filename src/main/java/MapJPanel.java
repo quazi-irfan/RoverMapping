@@ -12,6 +12,7 @@ public class MapJPanel extends JPanel implements MouseMotionListener, MouseListe
     JLabel jLabel;
     boolean drawingRect = false;
     ArrayList<Integer[]> path;
+    boolean drawGrid = true;
 
     public MapJPanel(Map m, JLabel jLabel)
     {
@@ -34,6 +35,26 @@ public class MapJPanel extends JPanel implements MouseMotionListener, MouseListe
         g2D.setBackground(Color.WHITE);
         g2D.clearRect(0, 0, getWidth(), getHeight());
 
+        // draw the black rectangle
+        if(drawingRect)
+        {
+            g2D.setColor(new Color(0,0,0, 150));
+            g2D.fillRect(startMouseX, startMouseY, currentMouseX - startMouseX, currentMouseY - startMouseY);
+        }
+
+        // draw the grid
+        if(drawGrid)
+            for (int i = 0; i < map.col; i += map.col / 60)
+            {
+                if (i % 60 == 0)
+                    g2D.setColor(new Color(0,0,0,250));
+                else
+                    g2D.setColor(new Color(0,0,0,100));
+
+                g2D.drawLine(i, 0, i, 600);
+                g2D.drawLine(0, i, 600, i);
+            }
+
         // go over the path list and paint red dots
         if(path != null && path.size() > 0)
             for(Integer[] i : path)
@@ -51,19 +72,13 @@ public class MapJPanel extends JPanel implements MouseMotionListener, MouseListe
                     g2D.drawLine(i, j, i, j);
                 }
 
-        // draw the black rectangle
-        if(drawingRect)
-        {
-            g2D.setColor(Color.BLACK);
-            g2D.fillRect(startMouseX, startMouseY, currentMouseX - startMouseX, currentMouseY - startMouseY);
-        }
-
         g2D.dispose();
 }
 
     @Override
     public void mouseDragged(MouseEvent e)
     {
+        jLabel.setText(e.getX() + " " + e.getY());
         if(drawingRect == false)
         {
             startMouseX = e.getX();
@@ -107,8 +122,35 @@ public class MapJPanel extends JPanel implements MouseMotionListener, MouseListe
     {
         if(this.drawingRect == true)
         {
-            for(int i = startMouseX; i<currentMouseX; i++)
-                for(int j = startMouseY; j<currentMouseY; j++)
+            int height = Math.abs(currentMouseY - startMouseY);
+            int width = Math.abs(currentMouseX - startMouseX);
+
+            int startX, startY;
+            startX = startY = 0;
+            if(currentMouseX > startMouseX & currentMouseY > startMouseY)
+            {
+                startX = startMouseX;
+                startY = startMouseY;
+            }
+            else if(currentMouseX > startMouseX & currentMouseY < startMouseY)
+            {
+                // problem
+                startX = startMouseX;
+                startY = currentMouseY;
+            }
+            else if(currentMouseX < startMouseX & currentMouseY > startMouseY)
+            {
+                startX = currentMouseX;
+                startY = currentMouseY - (currentMouseY - startMouseY);
+            }
+            else if(currentMouseX < startMouseX & currentMouseY < startMouseY)
+            {
+                startX = currentMouseX;
+                startY = currentMouseY;
+            }
+
+            for (int i = startX; i < startX + width; i++)
+                for (int j = startY; j < startY + height; j++)
                     this.map.setCellStatus(i, j, MapEnum.OBSTACLE.getValue());
 
             this.drawingRect = false;
@@ -125,5 +167,10 @@ public class MapJPanel extends JPanel implements MouseMotionListener, MouseListe
     public void setpath(ArrayList<Integer[]> path)
     {
         this.path = path;
+    }
+
+    public void setDrawGrid(boolean drawGrid) {
+        this.drawGrid = drawGrid;
+        repaint();
     }
 }
