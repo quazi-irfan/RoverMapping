@@ -12,3 +12,4 @@ Run any of the following two commands to compile and run :
  - `./gradlew run -Pgui=true` or `gradlew run -Pgui=true` (On Windows) will run the GUI version. This version allows testing the same algorithm on a larger map. 
 Move the mouse on the white canvas to get the coordinate of that pixel. The white canvas reprsents a 600 cm^2 area. Each pixel represents 1cm^2 area. Each small squares represents 10cm^2 area. Each black squares represnts 60cm^2 area. In the top right text box, enter the start coordinate and end coordinate, press enter and to see the calculated path. Make sure there is no leading white space when entering the coordinates. Click and drag to draw obstacles on the map. Drawn maps can saved and loaded using the save and load button. Make sure to enter a file name first.
 
+Note: You need to have JRE and JDK installed on your system. JAVA_HOME path needs to be set to bin folder in JDK installation.
